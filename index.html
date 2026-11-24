@@ -19,36 +19,53 @@
     --mono: "Courier New", Courier, monospace;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html,body{margin:0;padding:0;background:var(--white);color:var(--black);font-family:var(--font);}
+  html,body{margin:0;padding:0;background:var(--white);color:var(--black);font-family:var(--font);height:100%;}
+  body.home-locked{overflow:hidden;height:100dvh;}
   a{color:var(--black);text-decoration:none;cursor:pointer;}
   button{font-family:var(--font);cursor:pointer;background:none;border:none;color:var(--black);}
   img{display:block;max-width:100%;}
 
-  /* ---------- HOME — menu only + footer ---------- */
-  #view-home{min-height:100svh;display:none;flex-direction:column;background:var(--white);}
+  /* ---------- HOME — menu only + footer, fits one screen, no scroll ---------- */
+  #view-home{height:100svh;height:100dvh;max-height:100dvh;overflow:hidden;display:none;flex-direction:column;background:var(--white);}
   #view-home.active{display:flex;}
-  .home-top{background:var(--band);padding:20px 16px 18px;border-bottom:1px solid var(--line);}
-  .home-logo{display:block;width:min(240px,41vw);height:auto;}
+  .home-top{background:var(--band);padding:10px 16px 8px;border-bottom:1px solid var(--line);flex-shrink:0;}
+  .home-logo{display:block;width:150px;height:auto;}
   .home-logo img{width:100%;height:auto;}
 
-  /* Full-width category menu, one row per category */
-  .cat-menu{display:flex;flex-direction:column;}
+  /* Full-width category menu, one row per category — compact rows */
+  .cat-menu{display:flex;flex-direction:column;flex-shrink:0;}
   .cat-menu a{
-    display:flex;align-items:center;min-height:58px;padding:16px;
-    font-size:17px;line-height:1.3;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;height:32px;min-height:32px;padding:4px 16px;
+    font-size:14.5px;line-height:1.2;border-bottom:1px solid var(--line);
   }
   .cat-menu a:hover,.cat-menu a:focus-visible{background:var(--red);color:#fff;outline:none;}
 
-  /* Black footer bar */
+  /* Black footer bar — compact */
   .site-foot{
     margin-top:auto;background:#000;color:#fff;
-    padding:30px 20px 38px;
+    padding:12px 16px 14px;flex-shrink:0;
     display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
-    gap:14px 30px;text-align:center;
+    gap:6px 16px;text-align:center;
   }
-  .site-foot a{color:#fff;font-size:14.5px;padding:8px 4px;min-height:36px;display:inline-flex;align-items:center;line-height:1.3;}
+  .site-foot a{color:#fff;font-size:12.5px;padding:3px 2px;min-height:0;display:inline-flex;align-items:center;line-height:1.3;}
   .site-foot a:hover,.site-foot a:focus-visible{background:var(--red);color:#fff;outline:none;}
   .site-foot a.foot-shop{font-weight:700;}
+
+  /* Mobile: everything smaller so logo + 13 rows + footer fit in 100dvh (390x844) */
+  @media(max-width:600px){
+    .home-top{padding:8px 12px 6px;}
+    .home-logo{width:120px;}
+    .cat-menu a{height:29px;min-height:29px;padding:3px 12px;font-size:14px;}
+    .site-foot{padding:10px 10px 12px;gap:4px 12px;}
+    .site-foot a{font-size:12px;padding:2px 2px;}
+  }
+  /* Very short screens: squeeze a touch more so it still fits without scrolling */
+  @media(max-height:700px){
+    .home-top{padding:6px 12px 4px;}
+    .home-logo{width:104px;}
+    .cat-menu a{height:26px;min-height:26px;font-size:13.5px;}
+    .site-foot{padding:8px 10px 10px;}
+  }
 
   /* ---------- SECTION POP-UP (full-screen over home) ---------- */
   #section-popup{
@@ -438,6 +455,9 @@ var TITLES = {
   mailing:"mailing list", terms:"terms", privacy:"privacy", accessibility:"accessibility"
 };
 var state = { view:"home", category:"all", sort:"featured", randomId:null };
+/* Homepage fits one screen — lock body scroll while home is showing (pop-ups scroll internally) */
+document.body.classList.add("home-locked");
+document.body.style.overflow = "hidden";
 
 /* ---- News date (NYC) ---- */
 try{
@@ -481,11 +501,13 @@ function goTo(view, cat){
   state.view = view;
   if(view === "home"){
     popup.classList.remove("open");
-    document.body.style.overflow = "";
+    document.body.classList.add("home-locked");
+    document.body.style.overflow = "hidden";
     closeDrop();
     window.scrollTo(0,0);
     return;
   }
+  document.body.classList.remove("home-locked");
   pageIds.forEach(function(p){
     var el = document.getElementById("page-" + p);
     if(el) el.classList.toggle("active", p === view);
